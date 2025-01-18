@@ -5,7 +5,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #f5f5f5;
 }
 
 .map-container {
@@ -20,12 +20,12 @@ svg {
 }
 
 .country {
-    fill: #e2c9a8; /* A more visible fill color */
-    stroke: #ebbf86;
+    fill: rgba(185, 185, 185, 0.65); /* A more visible fill color */
+    stroke: rgb(185, 185, 185);
     cursor: pointer;
     opacity: 1; /* Set opacity to 1 */
 }
 
 .country:hover {
-    fill: #d19f5d;
+    fill: #a4e100;
 }

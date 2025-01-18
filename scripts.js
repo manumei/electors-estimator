@@ -1,3 +1,8 @@
+// Define color constants
+const DEFAULT_COLOR = "#d1d1d1";  // Default country fill color
+const HOVER_COLOR = "#a4e100";    // Hover color
+const SELECTED_COLOR = "#ff0000"; // Selected country fill color
+
 // Dimensions of the SVG container
 const width = 1000;
 const height = 600;
@@ -23,11 +28,20 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
         .append("path")
         .attr("d", path)
         .attr("class", "country")
+        .attr("fill", DEFAULT_COLOR) // Use constant for default color
         .on("click", function(event, d) {
-            // Toggle fill color on click
-            const currentColor = d3.select(this).attr("fill") || "#f4f4e8";
-            const newColor = currentColor === "#f4f4e8" ? "#ff0000" : "#f4f4e8";
+            // Toggle fill color on click using constants
+            const currentColor = d3.select(this).attr("fill") || DEFAULT_COLOR;
+            const newColor = currentColor === DEFAULT_COLOR ? SELECTED_COLOR : DEFAULT_COLOR;
             d3.select(this).attr("fill", newColor);
+        })
+        .on("mouseover", function() {
+            d3.select(this).attr("fill", HOVER_COLOR); // Use constant for hover color
+        })
+        .on("mouseout", function() {
+            d3.select(this).attr("fill", function(d) {
+                return d3.select(this).attr("fill") === HOVER_COLOR ? DEFAULT_COLOR : d3.select(this).attr("fill");
+            });
         });
 }).catch(function(error) {
     console.error("Error loading GeoJSON data:", error);
