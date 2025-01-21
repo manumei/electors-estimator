@@ -1,7 +1,24 @@
 // Define color constants
-const DEFAULT_COLOR = "#d1d1d1";  // Default country fill color
-const HOVER_COLOR = "#a4e100";    // Hover color
-const SELECTED_COLOR = "#ff0000"; // Selected country fill color
+const BORDER_COLOR = "rgb(185, 185, 185)";
+const DEFAULT_COLOR = "rgba(185, 185, 185, 0.65)";
+const NEUTRAL_COLOR = "rgb(220, 200, 132)";
+const DEMOCRAT_COLOR = "rgb(36, 73, 153)";
+const REPUBLICAN_COLOR = "rgb(210, 37, 50)";
+
+// Track country states
+const STATES = {
+    DEFAULT: "default",
+    NEUTRAL: "neutral",
+    DEMOCRAT: "democrat",
+    REPUBLICAN: "republican"
+};
+
+// Function to calculate electors (example placeholder formula)
+function calculateElectors(country) {
+    // Example formula: number of electors = population / 1000000 (simplified)
+    // Replace this with your actual formula
+    return Math.floor(country.properties.pop_est / 1000000);
+}
 
 // Dimensions of the SVG container
 const width = 1000;
@@ -19,7 +36,9 @@ const projection = d3.geoMercator()
 
 const path = d3.geoPath().projection(projection);
 
-// Load GeoJSON data (example with a public GeoJSON file)
+// Store country data for later updates
+let countryData = {};
+
 d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(function(geojson) {
     // Draw the map
     svg.selectAll(".country")
@@ -28,21 +47,92 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
         .append("path")
         .attr("d", path)
         .attr("class", "country")
-        .attr("fill", DEFAULT_COLOR) // Use constant for default color
+        .attr("fill", DEFAULT_COLOR) // Use default color initially
+        .attr("stroke", BORDER_COLOR)
         .on("click", function(event, d) {
-            // Toggle fill color on click using constants
-            const currentColor = d3.select(this).attr("fill") || DEFAULT_COLOR;
-            const newColor = currentColor === DEFAULT_COLOR ? SELECTED_COLOR : DEFAULT_COLOR;
-            d3.select(this).attr("fill", newColor);
+            const countryId = d.id;
+
+            // If Shift key is pressed, remove the country from the model
+            if (event.shiftKey) {
+                removeCountryFromModel(d, this);
+            } else {
+                // Cycle through country states on click
+                cycleCountryState(d, this);
+            }
         })
         .on("mouseover", function() {
-            d3.select(this).attr("fill", HOVER_COLOR); // Use constant for hover color
+            d3.select(this).attr("fill", NEUTRAL_COLOR); // Temporary hover color
         })
-        .on("mouseout", function() {
-            d3.select(this).attr("fill", function(d) {
-                return d3.select(this).attr("fill") === HOVER_COLOR ? DEFAULT_COLOR : d3.select(this).attr("fill");
-            });
+        .on("mouseout", function(event, d) {
+            const countryId = d.id;
+            const currentState = countryData[countryId]?.state || STATES.DEFAULT;
+            // Restore the color based on the current state
+            updateCountryColor(this, currentState);
         });
-}).catch(function(error) {
-    console.error("Error loading GeoJSON data:", error);
 });
+
+// Function to update the color based on state
+function updateCountryColor(element, state) {
+    let color;
+    switch (state) {
+        case STATES.NEUTRAL:
+            color = NEUTRAL_COLOR;
+            break;
+        case STATES.DEMOCRAT:
+            color = DEMOCRAT_COLOR;
+            break;
+        case STATES.REPUBLICAN:
+            color = REPUBLICAN_COLOR;
+            break;
+        default:
+            color = DEFAULT_COLOR;
+    }
+
+    d3.select(element).attr("fill", color);
+}
+
+// Function to cycle the country states
+function cycleCountryState(country, element) {
+    const countryId = country.id;
+
+    // Initialize country state if not already
+    if (!countryData[countryId]) {
+        countryData[countryId] = { state: STATES.DEFAULT };
+    }
+
+    // Cycle through states
+    const currentState = countryData[countryId].state;
+    let nextState;
+    if (currentState === STATES.DEFAULT) {
+        nextState = STATES.NEUTRAL;
+    } else if (currentState === STATES.NEUTRAL) {
+        nextState = STATES.DEMOCRAT;
+    } else if (currentState === STATES.DEMOCRAT) {
+        nextState = STATES.REPUBLICAN;
+    } else if (currentState === STATES.REPUBLICAN) {
+        nextState = STATES.DEFAULT;
+    }
+
+    // Update the country state
+    countryData[countryId].state = nextState;
+
+    // Calculate electors
+    const electors = calculateElectors(country);
+
+    // Display electors inside country shape (example logic)
+    // Placeholder for adding elector text: Add text as a future feature.
+
+    // Update the color based on new state
+    updateCountryColor(element, nextState);
+}
+
+// Function to remove country from the model
+function removeCountryFromModel(country, element) {
+    const countryId = country.id;
+
+    // Remove the country state
+    delete countryData[countryId];
+
+    // Reset the color and clear any associated data
+    updateCountryColor(element, STATES.DEFAULT);
+}

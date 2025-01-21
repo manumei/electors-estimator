@@ -20,12 +20,15 @@ svg {
 }
 
 .country {
-    fill: rgba(185, 185, 185, 0.65); /* A more visible fill color */
-    stroke: rgb(185, 185, 185);
+    stroke: rgb(185, 185, 185); /* Always same border color */
     cursor: pointer;
-    opacity: 1; /* Set opacity to 1 */
+    transition: fill 0.3s ease; /* Smooth transition for color change */
 }
 
-.country:hover {
-    fill: #a4e100;
+.country text {
+    font-size: 12px;
+    font-weight: bold;
+    fill: black; /* Color for text (elector count) */
+    text-anchor: middle;
+    pointer-events: none; /* Ensure text doesn't block clicks */
 }
