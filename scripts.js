@@ -6,7 +6,7 @@ const NEUTRAL_COLOR = "rgb(220, 200, 132)";
 const DEMOCRAT_COLOR = "rgb(36, 73, 153)";
 const REPUBLICAN_COLOR = "rgb(210, 37, 50)";
 
-// Track country states
+// voting options
 const STATES = {
     DEFAULT: "default",
     NEUTRAL: "neutral",
@@ -14,7 +14,7 @@ const STATES = {
     REPUBLICAN: "republican"
 };
 
-// Function to calculate electors (example placeholder formula)
+// TODO: PLACEHOLDER
 function calculateElectors(country) {
     return Math.floor(country.properties.pop_est / 1000000);
 }
@@ -23,10 +23,21 @@ function calculateElectors(country) {
 const width = 1000;
 const height = 600;
 
-// Create an SVG element
-const svg = d3.select("#map")
+// Crear Container, agregarle el zoom y los limits de panning
+const svgContainer = d3.select("#map")
     .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("preserveAspectRatio", "xMidYMid meet");
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .call(d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([[width * -0.02, height * -0.25], [width * 1.02, height * 0.84]])
+        .on("zoom", function(event) {
+            svg.attr("transform", event.transform);
+        })
+    );
+
+// Append a <g> element inside SVG for proper zooming behavior
+const svg = svgContainer.append("g");
+
 
 // Projection and path generator
 const projection = d3.geoMercator()
@@ -41,14 +52,14 @@ let countryData = {};
 d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(function(geojson) {
     // Draw the map
     svg.selectAll(".country")
-        .data(geojson.features)
+        .data(geojson.features.filter(d => d.properties.name !== "Antarctica")) // Exclude Antarctica
         .enter()
         .append("path")
         .attr("d", path)
         .attr("class", "country")
-        .attr("fill", DEFAULT_COLOR) // Use default color initially
+        .attr("fill", DEFAULT_COLOR) 
         .attr("stroke", BORDER_COLOR)
-        .attr("stroke-width", 1) // Increase stroke width (default is around 1)
+        .attr("stroke-width", 1) // width de los bordes
         .on("click", function(event, d) {
             const countryId = d.id;
 
@@ -91,16 +102,13 @@ function updateCountryColor(element, state) {
     d3.select(element).attr("fill", color);
 }
 
-// Function to cycle the country states
 function cycleCountryState(country, element) {
     const countryId = country.id;
 
-    // Initialize country state if not already
     if (!countryData[countryId]) {
         countryData[countryId] = { state: STATES.DEFAULT };
     }
 
-    // Cycle through states
     const currentState = countryData[countryId].state;
     let nextState;
     if (currentState === STATES.DEFAULT) {
@@ -113,23 +121,17 @@ function cycleCountryState(country, element) {
         nextState = STATES.DEFAULT;
     }
 
-    // Update the country state
     countryData[countryId].state = nextState;
 
-    // Calculate electors (if needed)
     const electors = calculateElectors(country);
 
-    // Update the color based on new state
     updateCountryColor(element, nextState);
 }
 
-// Function to remove country from the model
 function removeCountryFromModel(country, element) {
     const countryId = country.id;
 
-    // Remove the country state
     delete countryData[countryId];
 
-    // Reset the color and clear any associated data
     updateCountryColor(element, STATES.DEFAULT);
 }
