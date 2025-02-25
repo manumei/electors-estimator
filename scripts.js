@@ -1,6 +1,7 @@
 // Define color constants
-const BORDER_COLOR = "rgb(185, 185, 185)";
-const DEFAULT_COLOR = "rgba(185, 185, 185, 0.65)";
+const BORDER_COLOR = "rgb(255, 255, 255)"; // THIS DOESNT CHANGE ANYTHING, IT IS TRULY DEFINED IN THE CSS FOR .COUNTRY
+const DEFAULT_COLOR = "rgba(185, 185, 185)";
+const HOVER_COLOR = "rgba(139, 139, 139)"; // Hover color
 const NEUTRAL_COLOR = "rgb(220, 200, 132)";
 const DEMOCRAT_COLOR = "rgb(36, 73, 153)";
 const REPUBLICAN_COLOR = "rgb(210, 37, 50)";
@@ -15,8 +16,6 @@ const STATES = {
 
 // Function to calculate electors (example placeholder formula)
 function calculateElectors(country) {
-    // Example formula: number of electors = population / 1000000 (simplified)
-    // Replace this with your actual formula
     return Math.floor(country.properties.pop_est / 1000000);
 }
 
@@ -49,6 +48,7 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
         .attr("class", "country")
         .attr("fill", DEFAULT_COLOR) // Use default color initially
         .attr("stroke", BORDER_COLOR)
+        .attr("stroke-width", 1) // Increase stroke width (default is around 1)
         .on("click", function(event, d) {
             const countryId = d.id;
 
@@ -61,7 +61,7 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
             }
         })
         .on("mouseover", function() {
-            d3.select(this).attr("fill", NEUTRAL_COLOR); // Temporary hover color
+            d3.select(this).attr("fill", HOVER_COLOR); // Temporary hover color
         })
         .on("mouseout", function(event, d) {
             const countryId = d.id;
@@ -116,11 +116,8 @@ function cycleCountryState(country, element) {
     // Update the country state
     countryData[countryId].state = nextState;
 
-    // Calculate electors
+    // Calculate electors (if needed)
     const electors = calculateElectors(country);
-
-    // Display electors inside country shape (example logic)
-    // Placeholder for adding elector text: Add text as a future feature.
 
     // Update the color based on new state
     updateCountryColor(element, nextState);

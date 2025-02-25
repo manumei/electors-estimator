@@ -20,7 +20,7 @@ svg {
 }
 
 .country {
-    stroke: rgb(185, 185, 185); /* Always same border color */
+    stroke: rgb(105, 105, 105); /* Always same border color */
     cursor: pointer;
     transition: fill 0.3s ease; /* Smooth transition for color change */
 }
