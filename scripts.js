@@ -28,12 +28,13 @@ const svgContainer = d3.select("#map")
     .attr("viewBox", `0 0 ${width} ${height}`)
     .attr("preserveAspectRatio", "xMidYMid meet")
     .call(d3.zoom()
-        .scaleExtent([1, 8])
-        .translateExtent([[width * -0.02, height * -0.25], [width * 1.02, height * 0.84]])
+        .scaleExtent([0.9, 8])
+        .translateExtent([[width * -0.02, height * -0.22], [width * 1.02, height * 0.78]])
         .on("zoom", function(event) {
             svg.attr("transform", event.transform);
         })
-    );
+    )
+    .on("dblclick.zoom", null); // Disable zoom on double click
 
 // Append a <g> element inside SVG for proper zooming behavior
 const svg = svgContainer.append("g");
@@ -81,6 +82,60 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
             updateCountryColor(this, currentState);
         });
 });
+
+document.getElementById("maximize-btn").addEventListener("click", function() {
+    const mapContainer = document.querySelector(".map-container");
+
+    if (!document.fullscreenElement) {
+        // Enter fullscreen mode
+        if (mapContainer.requestFullscreen) {
+            mapContainer.requestFullscreen();
+        } else if (mapContainer.mozRequestFullScreen) { // Firefox
+            mapContainer.mozRequestFullScreen();
+        } else if (mapContainer.webkitRequestFullscreen) { // Chrome, Safari, Edge
+            mapContainer.webkitRequestFullscreen();
+        } else if (mapContainer.msRequestFullscreen) { // IE/Edge
+            mapContainer.msRequestFullscreen();
+        }
+        this.innerText = "🗕"; // Change icon to minimize
+        this.title = "Exit Fullscreen";
+    } else {
+        // Exit fullscreen mode
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        this.innerText = "⛶"; // Change icon back to maximize
+        this.title = "Maximize Map";
+    }
+});
+
+// Exit fullscreen when ESC is pressed
+document.addEventListener("fullscreenchange", function() {
+    if (!document.fullscreenElement) {
+        const maximizeBtn = document.getElementById("maximize-btn");
+        maximizeBtn.innerText = "⛶"; // Reset button
+        maximizeBtn.title = "Maximize Map";
+    }
+
+    const mapContainer = document.querySelector(".map-container");
+    const isFullscreen = !!document.fullscreenElement;
+
+    if (isFullscreen) {
+        // Ensure the background remains ocean blue
+        mapContainer.style.background = "rgb(173, 216, 230)"; // Light blue
+    } else {
+        // Restore original background when exiting fullscreen
+        mapContainer.style.background = "";
+    }
+});
+
+
 
 // Function to update the color based on state
 function updateCountryColor(element, state) {

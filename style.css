@@ -9,9 +9,15 @@ body {
 }
 
 .map-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: flex-end;
+
     width: 100%;
     max-width: 1000px;
     margin-top: 20px;
+    padding: 5px;
     border: 1.5px solid rgba(0, 255, 255, 0.855); /* Aqua border */
     border-radius: 10px; /* Optional: rounded corners */
     background-color: rgb(196, 241, 255, 0.2); /* Light blue ocean */
@@ -35,3 +41,31 @@ svg {
     text-anchor: middle;
     pointer-events: none; /* Ensure text doesn't block clicks */
 }
+
+
+#maximize-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    background: white;
+    border: 2px solid #888;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+}
+
+#maximize-btn:hover {
+    background: #ddd;
+}
+
+:fullscreen .map-container {
+    background: rgb(173, 216, 230); /* Light blue ocean */
+}
+
+.fullscreen {
+    width: 100vw;
+    height: 100vh;
+}
+
+
