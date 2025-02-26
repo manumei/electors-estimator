@@ -5,6 +5,9 @@ const HOVER_COLOR = "rgba(139, 139, 139)"; // Hover color
 const NEUTRAL_COLOR = "rgb(220, 200, 132)";
 const DEMOCRAT_COLOR = "rgb(36, 73, 153)";
 const REPUBLICAN_COLOR = "rgb(210, 37, 50)";
+const NEUTRAL_HOVER_COLOR = "rgb(200, 180, 112)";
+const DEMOCRAT_HOVER_COLOR = "rgb(26, 63, 133)";
+const REPUBLICAN_HOVER_COLOR = "rgb(190, 27, 40)";
 
 // voting options
 const STATES = {
@@ -72,8 +75,24 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
                 cycleCountryState(d, this);
             }
         })
-        .on("mouseover", function() {
-            d3.select(this).attr("fill", HOVER_COLOR); // Temporary hover color
+        .on("mouseover", function(d) {
+            const countryId = d.id;
+            const currentState = countryData[countryId]?.state || STATES.DEFAULT;
+            let hoverColor;
+            switch (currentState) {
+            case STATES.NEUTRAL:
+                hoverColor = NEUTRAL_HOVER_COLOR;
+                break;
+            case STATES.DEMOCRAT:
+                hoverColor = DEMOCRAT_HOVER_COLOR;
+                break;
+            case STATES.REPUBLICAN:
+                hoverColor = REPUBLICAN_HOVER_COLOR;
+                break;
+            default:
+                hoverColor = HOVER_COLOR;
+            }
+            d3.select(this).attr("fill", hoverColor);
         })
         .on("mouseout", function(event, d) {
             const countryId = d.id;
