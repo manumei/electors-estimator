@@ -18,7 +18,7 @@
 // };
 
 // Load the GeoJSON file and log it to verify
-d3.json("data/world_and_states.geojson").then(function(geojson) {
+d3.json("data/map.geojson").then(function(geojson) {
     console.log("GeoJSON Loaded:", geojson);
     console.log("Number of Features:", geojson.features.length);
 });
@@ -51,8 +51,9 @@ const projection = d3.geoMercator()
 const path = d3.geoPath().projection(projection);
 
 // 3. Load and Draw the Map
-d3.json("data/world_and_states.geojson").then(function(geojson) {
+d3.json("data/map.geojson").then(function(geojson) {
     console.log("GeoJSON loaded:", geojson); // Debugging step
+    console.log("Number of Features:", geojson.features.length);
 
     // Ensure geojson is correctly structured
     if (!geojson || !geojson.features) {
@@ -61,19 +62,24 @@ d3.json("data/world_and_states.geojson").then(function(geojson) {
     }
 
     geojson.features.forEach(feature => {
-        console.log("Drawing:", feature.properties.NAME);
+        console.log("Drawing:", feature.properties.NAME, feature.geometry.type);
     });
 
     svg.selectAll(".country")
-    .data(geojson.features)
+    .data(geojson.features)  // Use full dataset
     .enter()
     .append("path")
-    .attr("d", path)
+    .attr("d", d => {
+        if (!d.geometry) {
+            console.warn("Feature missing geometry:", d.properties.NAME);
+            return null;
+        }
+        return path(d);
+    })
     .attr("class", "country")
-    .attr("fill", d => d.properties.NAME === "United States" ? "lightgray" : "lightblue")
+    .attr("fill", d => d.properties.region === "United States" ? "lightgray" : "lightblue")
     .attr("stroke", "white")
     .attr("stroke-width", 0.5);
-
 });
 
 
